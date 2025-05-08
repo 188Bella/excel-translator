@@ -18,10 +18,8 @@ import time
 from io import BytesIO
 
 # 替换为你的有道API信息
-import streamlit as st
-
-   YOUDAO_APP_KEY = st.secrets["YOUDAO_APP_KEY"]
-   YOUDAO_APP_SECRET = st.secrets["YOUDAO_APP_SECRET"]
+YOUDAO_APP_KEY = st.secrets["YOUDAO_APP_KEY"]
+YOUDAO_APP_SECRET = st.secrets["YOUDAO_APP_SECRET"]
 
 def youdao_translate(text, from_lang='auto', to_lang='en'):
     url = 'https://openapi.youdao.com/api'
