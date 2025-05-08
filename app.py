@@ -1,37 +1,70 @@
 import streamlit as st
 import openpyxl
-from googletrans import Translator
+import requests
+import hashlib
+import random
+import time
 from io import BytesIO
 
-st.title("Excel 批量中英文对照翻译工具（自动检测，无需API Key）")
+# 替换为你的有道API信息
+YOUDAO_APP_KEY = '07478c81aec00b0f'
+YOUDAO_APP_SECRET = 'Dz9MRb6fcdVpOdj8jJA1HwtV5NT6FzxJ'
+
+def youdao_translate(text, from_lang='auto', to_lang='en'):
+    url = 'https://openapi.youdao.com/api'
+    salt = str(random.randint(1, 65536))
+    curtime = str(int(time.time()))
+    sign_str = YOUDAO_APP_KEY + truncate(text) + salt + curtime + YOUDAO_APP_SECRET
+    sign = hashlib.sha256(sign_str.encode('utf-8')).hexdigest()
+    params = {
+        'q': text,
+        'from': from_lang,
+        'to': to_lang,
+        'appKey': YOUDAO_APP_KEY,
+        'salt': salt,
+        'sign': sign,
+        'signType': 'v3',
+        'curtime': curtime,
+    }
+    try:
+        response = requests.post(url, data=params, timeout=5)
+        result = response.json()
+        if 'translation' in result:
+            return result['translation'][0]
+        else:
+            return '[翻译失败]'
+    except Exception as e:
+        return '[翻译失败]'
+
+def truncate(text):
+    if text is None:
+        return ''
+    size = len(text)
+    return text if size <= 20 else text[:10] + str(size) + text[-10:]
+
+st.title("Excel 批量中英文对照翻译工具（有道API版）")
 
 uploaded_file = st.file_uploader("上传 Excel 文件", type=["xlsx"])
 
 if uploaded_file:
     wb = openpyxl.load_workbook(uploaded_file)
     ws = wb.active
-    translator = Translator()
     st.write("正在翻译，请稍候...")
 
     for row in ws.iter_rows():
         for cell in row:
             if cell.value:
-                try:
-                    detected = translator.detect(cell.value)
-                    # 只处理中文和英文，其它语言直接提示
-                    if detected.lang == 'zh-cn':
-                        dest_lang = 'en'
-                    elif detected.lang == 'en':
-                        dest_lang = 'zh-cn'
-                    else:
-                        cell.value = f"{cell.value}\n[翻译失败:不支持的语言]"
-                        continue
-                    result = translator.translate(cell.value, dest=dest_lang)
-                    cell.value = f"{cell.value}\n{result.text}"
-                except Exception as e:
-                    cell.value = f"{cell.value}\n[翻译失败]"
-                    # 可选：显示错误信息，便于调试
-                    # st.write(f"翻译出错: {e}")
+                # 自动检测语言，中文翻译成英文，英文翻译成中文
+                text = str(cell.value)
+                if is_chinese(text):
+                    to_lang = 'en'
+                elif is_english(text):
+                    to_lang = 'zh-CHS'
+                else:
+                    cell.value = f"{cell.value}\n[翻译失败:不支持的语言]"
+                    continue
+                translation = youdao_translate(text, to_lang=to_lang)
+                cell.value = f"{cell.value}\n{translation}"
 
     # 保存到内存
     output = BytesIO()
@@ -43,3 +76,15 @@ if uploaded_file:
         file_name="output_with_translation.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
+def is_chinese(text):
+    for ch in text:
+        if '\u4e00' <= ch <= '\u9fff':
+            return True
+    return False
+
+def is_english(text):
+    for ch in text:
+        if ch.isalpha():
+            return True
+    return False
