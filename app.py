@@ -1,3 +1,12 @@
+import streamlit as st
+import openpyxl
+import requests
+import hashlib
+import random
+import time
+from io import BytesIO
+
+# 语言判断函数
 def is_chinese(text):
     for ch in text:
         if '\u4e00' <= ch <= '\u9fff':
@@ -10,17 +19,11 @@ def is_english(text):
             return True
     return False
 
-import streamlit as st
-import openpyxl
-import requests
-import hashlib
-import random
-import time
-from io import BytesIO
-
+# 读取有道API密钥
 YOUDAO_APP_KEY = st.secrets["YOUDAO_APP_KEY"]
 YOUDAO_APP_SECRET = st.secrets["YOUDAO_APP_SECRET"]
 
+# 有道翻译API调用
 def youdao_translate(text, from_lang='auto', to_lang='en'):
     url = 'https://openapi.youdao.com/api'
     salt = str(random.randint(1, 65536))
@@ -40,12 +43,11 @@ def youdao_translate(text, from_lang='auto', to_lang='en'):
     try:
         response = requests.post(url, data=params, timeout=5)
         result = response.json()
-        # 新增：打印API返回内容
-        st.write(f"原文: {text}，返回: {result}")
-        if 'translation' in result:
+        st.write(f"原文: {text}；返回: {result}")
+        if result.get('errorCode') == '0' and 'translation' in result:
             return result['translation'][0]
         else:
-            return '[翻译失败]'
+            return f"[翻译失败: 错误码{result.get('errorCode')}]"
     except Exception as e:
         st.write(f"请求异常: {e}")
         return '[翻译失败]'
@@ -65,21 +67,21 @@ if uploaded_file:
     ws = wb.active
     st.write("正在翻译，请稍候...")
 
-    # 这里是优化后的处理单元格部分
     for row in ws.iter_rows():
         for cell in row:
             if cell.value:
                 text = str(cell.value).strip()
                 # 优先判断中文
-                if any('\u4e00' <= ch <= '\u9fff' for ch in text):
+                if is_chinese(text):
                     to_lang = 'en'
                 # 再判断英文
-                elif any(ch.isalpha() for ch in text):
+                elif is_english(text):
                     to_lang = 'zh-CHS'
                 else:
                     # 其它内容（如数字、符号）也尝试翻译成英文
                     to_lang = 'en'
                 translation = youdao_translate(text, to_lang=to_lang)
+                st.write(f"单元格原文: {text}，翻译结果: {translation}")
                 cell.value = f"{cell.value}\n{translation}"
 
     # 保存到内存
