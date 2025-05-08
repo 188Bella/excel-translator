@@ -83,6 +83,20 @@ if uploaded_file:
                 translation = youdao_translate(text, to_lang=to_lang)
                 st.write(f"单元格原文: {text}，翻译结果: {translation}")
                 cell.value = f"{cell.value}\n{translation}"
+                for row in ws.iter_rows():
+    for cell in row:
+        if cell.value:
+            text = str(cell.value).strip()
+            if is_chinese(text):
+                to_lang = 'en'
+            elif is_english(text):
+                to_lang = 'zh-CHS'
+            else:
+                to_lang = 'en'
+            translation = youdao_translate(text, to_lang=to_lang)
+            st.write(f"单元格原文: {text}，翻译结果: {translation}")
+            cell.value = f"{cell.value}\n{translation}"
+            time.sleep(1)  # 新增：每次翻译后暂停1秒，防止被限流
 
     # 保存到内存
     output = BytesIO()
