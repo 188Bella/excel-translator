@@ -63,19 +63,20 @@ if uploaded_file:
     st.write("正在翻译，请稍候...")
 
     for row in ws.iter_rows():
-        for cell in row:
-            if cell.value:
-                # 自动检测语言，中文翻译成英文，英文翻译成中文
-                text = str(cell.value)
-                if is_chinese(text):
-                    to_lang = 'en'
-                elif is_english(text):
-                    to_lang = 'zh-CHS'
-                else:
-                    cell.value = f"{cell.value}\n[翻译失败:不支持的语言]"
-                    continue
-                translation = youdao_translate(text, to_lang=to_lang)
-                cell.value = f"{cell.value}\n{translation}"
+    for cell in row:
+        if cell.value:
+            text = str(cell.value).strip()
+            # 优先判断中文
+            if any('\u4e00' <= ch <= '\u9fff' for ch in text):
+                to_lang = 'en'
+            # 再判断英文
+            elif any(ch.isalpha() for ch in text):
+                to_lang = 'zh-CHS'
+            else:
+                # 其它内容（如数字、符号）也尝试翻译成英文
+                to_lang = 'en'
+            translation = youdao_translate(text, to_lang=to_lang)
+            cell.value = f"{cell.value}\n{translation}"
 
     # 保存到内存
     output = BytesIO()
