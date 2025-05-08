@@ -40,11 +40,14 @@ def youdao_translate(text, from_lang='auto', to_lang='en'):
     try:
         response = requests.post(url, data=params, timeout=5)
         result = response.json()
+        # 新增：打印API返回内容
+        st.write(f"原文: {text}，返回: {result}")
         if 'translation' in result:
             return result['translation'][0]
         else:
             return '[翻译失败]'
     except Exception as e:
+        st.write(f"请求异常: {e}")
         return '[翻译失败]'
 
 def truncate(text):
