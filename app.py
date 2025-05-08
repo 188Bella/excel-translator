@@ -1,3 +1,14 @@
+def is_chinese(text):
+    for ch in text:
+        if '\u4e00' <= ch <= '\u9fff':
+            return True
+    return False
+
+def is_english(text):
+    for ch in text:
+        if ch.isalpha():
+            return True
+    return False
 import streamlit as st
 import openpyxl
 import requests
