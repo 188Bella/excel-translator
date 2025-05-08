@@ -9,6 +9,7 @@ def is_english(text):
         if ch.isalpha():
             return True
     return False
+
 import streamlit as st
 import openpyxl
 import requests
@@ -17,7 +18,6 @@ import random
 import time
 from io import BytesIO
 
-# 替换为你的有道API信息
 YOUDAO_APP_KEY = st.secrets["YOUDAO_APP_KEY"]
 YOUDAO_APP_SECRET = st.secrets["YOUDAO_APP_SECRET"]
 
@@ -62,21 +62,22 @@ if uploaded_file:
     ws = wb.active
     st.write("正在翻译，请稍候...")
 
+    # 这里是优化后的处理单元格部分
     for row in ws.iter_rows():
-    for cell in row:
-        if cell.value:
-            text = str(cell.value).strip()
-            # 优先判断中文
-            if any('\u4e00' <= ch <= '\u9fff' for ch in text):
-                to_lang = 'en'
-            # 再判断英文
-            elif any(ch.isalpha() for ch in text):
-                to_lang = 'zh-CHS'
-            else:
-                # 其它内容（如数字、符号）也尝试翻译成英文
-                to_lang = 'en'
-            translation = youdao_translate(text, to_lang=to_lang)
-            cell.value = f"{cell.value}\n{translation}"
+        for cell in row:
+            if cell.value:
+                text = str(cell.value).strip()
+                # 优先判断中文
+                if any('\u4e00' <= ch <= '\u9fff' for ch in text):
+                    to_lang = 'en'
+                # 再判断英文
+                elif any(ch.isalpha() for ch in text):
+                    to_lang = 'zh-CHS'
+                else:
+                    # 其它内容（如数字、符号）也尝试翻译成英文
+                    to_lang = 'en'
+                translation = youdao_translate(text, to_lang=to_lang)
+                cell.value = f"{cell.value}\n{translation}"
 
     # 保存到内存
     output = BytesIO()
@@ -88,15 +89,3 @@ if uploaded_file:
         file_name="output_with_translation.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-
-def is_chinese(text):
-    for ch in text:
-        if '\u4e00' <= ch <= '\u9fff':
-            return True
-    return False
-
-def is_english(text):
-    for ch in text:
-        if ch.isalpha():
-            return True
-    return False
