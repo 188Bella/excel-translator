@@ -18,7 +18,7 @@ import time
 from io import BytesIO
 
 # 替换为你的有道API信息
-   import streamlit as st
+import streamlit as st
 
    YOUDAO_APP_KEY = st.secrets["YOUDAO_APP_KEY"]
    YOUDAO_APP_SECRET = st.secrets["YOUDAO_APP_SECRET"]
