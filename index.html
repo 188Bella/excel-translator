@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel中英互译工具 | 专业文档翻译</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3a0ca3;
+            --secondary: #727cf5;
+            --accent: #4cc9f0;
+            --light-bg: #f8fafc;
+            --light-border: #e2e8f0;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --ring: rgba(67, 97, 238, 0.25);
+            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Inter', 'Noto Sans SC', sans-serif; 
+            margin: 0; 
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            line-height: 1.6;
+        }
+        
+        .container { 
+            width: 95%;
+            max-width: 1000px; 
+            margin: 40px auto; 
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--light-border);
+        }
+        
+        h1 {
+            color: var(--text);
+            text-align: center;
+            margin-bottom: 16px;
+            font-weight: 700;
+            font-size: 2.8rem;
+            position: relative;
+            padding-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 5px;
+            background: var(--gradient);
+            border-radius: 4px;
+        }
+        
+        .tagline {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 1.15rem;
+            font-weight: 400;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 36px;
+            margin-top: 30px;
+        }
+        
+        .upload-section {
+            width: 100%;
+            max-width: 700px;
+        }
+        
+        .upload-box { 
+            border: 2.5px dashed var(--light-border); 
+            padding: 40px; 
+            text-align: center; 
+            margin-bottom: 30px; 
+            border-radius: 18px;
+            background-color: var(--light-bg);
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .upload-box:hover {
+            border-color: var(--primary-light);
+            background-color: rgba(67, 97, 238, 0.03);
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .upload-icon {
+            font-size: 56px;
+            color: var(--primary);
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        #dropZone:hover .upload-icon {
+            color: var(--primary-light);
+            transform: scale(1.05);
+        }
+        
+        .btn { 
+            background: var(--gradient); 
+            color: #fff; 
+            padding: 16px 32px; 
+            border: none; 
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 20px auto;
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.25);
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            box-shadow: 0 12px 24px rgba(67, 97, 238, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 4px var(--ring);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(90deg, #9ca3af, #d1d5db);
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        
+        .secondary-btn {
+            background: linear-gradient(90deg, #566074, #7c889e);
+            margin-top: 20px;
+        }
+        
+        .secondary-btn:hover {
+            background: linear-gradient(90deg, #475569, #64748b);
+        }
+        
+        .progress { 
+            display: none; 
+            margin: 30px 0; 
+            text-align: center;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--gradient);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-top: 14px;
+            font-weight: 500;
+        }
+        
+        .result {
+            display: none;
+            text-align: center;
+            padding: 32px;
+            background: rgba(16, 185, 129, 0.08);
+            border-radius: 18px;
+            margin-top: 30px;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.1);
+            animation: fadeIn 0.5s ease;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .error {
+            color: var(--error);
+            text-align: center;
+            padding: 16px;
+            background-color: rgba(239, 68, 68, 0.08);
+            border-radius: 12px;
+            margin: 20px 0;
+            display: none;
+            border-left: 4px solid var(--error);
+            font-weight: 500;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        #fileInput {
+            display: none;
+        }
+        
+        .file-info {
+            margin-top: 16px;
+            font-size: 17px;
+            color: var(--text);
+            font-weight: 600;
+        }
+        
+        .file-selected {
+            background-color: rgba(67, 97, 238, 0.05);
+            border: 2.5px solid var(--primary);
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.12);
+        }
+        
+        .file-icon {
+            font-size: 32px;
+            margin-right: 14px;
+            color: var(--primary);
+        }
+        
+        .upload-instructions {
+            font-size: 20px;
+            color: var(--text);
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .upload-format {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+        }
+        
+        .info-section {
+            margin-top: 60px;
+            border-top: 1px solid var(--light-border);
+            padding-top: 50px;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .info-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 70px;
+        }
+        
+        .info-block {
+            width: 45%;
+            min-width: 300px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .info-block h3 {
+            color: var(--text);
+            font-size: 1.5rem;
+            margin-bottom: 28px;
+            position: relative;
+            padding-bottom: 14px;
+            font-weight: 700;
+        }
+        
+        .info-block h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 3px;
+        }
+        
+        .info-block ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        
+        .info-block li {
+            display: flex;
+            align-items: center;
+            font-size: 17px;
+            text-align: left;
+            width: 100%;
+            justify-content: flex-start;
+        }
+        
+        .info-block li i {
+            margin-right: 16px;
+            font-size: 20px;
+            color: var(--accent);
+            min-width: 24px;
+            text-align: center;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .info-block li span {
+            color: var(--text);
+            text-align: left;
+            flex: 0 1 auto;
+        }
+        
+        .scenario-item, .feature-item {
+            display: inline-block;
+            text-align: left;
+            width: auto;
+            max-width: 100%;
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 50px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            padding-top: 40px;
+            border-top: 1px solid var(--light-border);
+        }
+        
+        .feature-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 28px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .info-block {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .upload-box {
+                padding: 28px;
+            }
+            
+            .btn {
+                padding: 14px 26px;
+                font-size: 15px;
+            }
+            
+            .info-container {
+                gap: 40px;
+            }
+            
+            .scenario-item, .feature-item {
+                max-width: 100%;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+		
+		/* 添加 pulse 动画 */
+		@keyframes pulse {
+			0% { transform: scale(1); }
+			50% { transform: scale(1.02); }
+			100% { transform: scale(1); }
+		}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Excel中英互译工具</h1>
+        <p class="tagline">高效处理Excel文档翻译，保持原有格式与布局，让跨语言沟通更简单</p>
+        
+        <div class="main-content">
+            <div class="upload-section">
+                <div class="upload-box" id="dropZone">
+                    <div id="uploadContent">
+                        <i class="fas fa-file-excel upload-icon"></i>
+                        <p class="upload-instructions">拖放Excel文件到此处</p>
+                        <button class="btn" onclick="document.getElementById('fileInput').click()">选择Excel文件</button>
+                        <input type="file" id="fileInput" name="file" accept=".xlsx,.xls">
+                        <p class="upload-format">支持 .xlsx 和 .xls 格式，最大50MB</p>
+                    </div>
+                    <div id="fileContent" style="display:none;">
+                        <i class="fas fa-check-circle upload-icon" style="color: var(--accent);"></i>
+                        <div class="file-info" id="fileInfo"></div>
+                        <button class="btn secondary-btn" id="resetBtn">重新选择文件</button>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn" id="processBtn" disabled>开始翻译处理</button>
+                    <p class="feature-badge">智能翻译 · 格式保留 · 安全可靠</p>
+                </div>
+                
+                <div class="error" id="errorMsg"></div>
+                
+                <div class="progress" id="progress">
+                    <p>正在翻译中，请稍候...</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <p class="progress-text" id="progressText">0%</p>
+                </div>
+                
+                <div class="result" id="result">
+                    <p style="font-size: 20px; margin-bottom: 24px; font-weight: 600;">处理完成！</p>
+                    <a class="btn" id="downloadLink">下载翻译后的文件</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 使用场景和功能概览部分 -->
+        <div class="info-section">
+            <div class="info-container">
+                <div class="info-block">
+                    <h3>使用场景</h3>
+                    <ul>
+                        <li>
+                            <i class="fas fa-globe"></i>
+                            <span class="scenario-item">商务文档本地化处理</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-graduation-cap"></i>
+                            <span class="scenario-item">学术资料翻译整理</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-table"></i>
+                            <span class="scenario-item">多语言数据表格处理</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-project-diagram"></i>
+                            <span class="scenario-item">国际化项目文档准备</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="info-block">
+                    <h3>核心功能</h3>
+                    <ul>
+                        <li>
+                            <i class="fas fa-exchange-alt"></i>
+                            <span class="feature-item">中英文双向精准互译</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-layer-group"></i>
+                            <span class="feature-item">Excel原始格式完美保留</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-bolt"></i>
+                            <span class="feature-item">批量数据处理高效快捷</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-shield-alt"></i>
+                            <span class="feature-item">文件安全加密处理</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2023 Excel中英互译工具 - 专业文档处理解决方案
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const processBtn = document.getElementById('processBtn');
+            const progress = document.getElementById('progress');
+            const result = document.getElementById('result');
+            const errorMsg = document.getElementById('errorMsg');
+            const downloadLink = document.getElementById('downloadLink');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            let selectedFile = null;
+            
+            // 拖放功能
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--primary)';
+                dropZone.style.transform = 'scale(1.01)';
+            });
+            
+            dropZone.addEventListener('dragleave', function() {
+                dropZone.style.borderColor = 'var(--light-border)';
+                dropZone.style.transform = 'scale(1)';
+            });
+            
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--light-border)';
+                dropZone.style.transform = 'scale(1)';
+                
+                if (e.dataTransfer.files.length) {
+                    handleFile(e.dataTransfer.files[0]);
+                }
+            });
+            
+            // 文件选择功能
+            fileInput.addEventListener('change', function() {
+                if (fileInput.files.length) {
+                    handleFile(fileInput.files[0]);
+                }
+            });
+            
+            // 重新选择文件按钮
+            resetBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); // 防止事件冒泡
+                resetFileSelection();
+            });
+            
+            // 处理文件选择
+            function handleFile(file) {
+                // 检查文件类型
+                // const allowedTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+                const extension = file.name.split('.').pop().toLowerCase();
+                
+                if (!['xlsx', 'xls'].includes(extension)) {
+                    showError('请选择Excel文件 (.xlsx 或 .xls)');
+                    return;
+                }
+                
+                // 检查文件大小 (50MB)
+                if (file.size > 50 * 1024 * 1024) {
+                    showError('文件大小不能超过50MB');
+                    return;
+                }
+                
+                selectedFile = file;
+                fileInfo.innerHTML = `<i class="fas fa-file-excel file-icon"></i>${file.name}<br><span style="font-size:15px;color:var(--text-secondary);">${formatFileSize(file.size)}</span>`;
+                processBtn.disabled = false;
+                hideError();
+                
+                // 切换显示内容
+                document.getElementById('uploadContent').style.display = 'none';
+                document.getElementById('fileContent').style.display = 'block';
+                dropZone.classList.add('file-selected');
+            }
+            
+            // 重置文件选择
+            function resetFileSelection() {
+                selectedFile = null;
+                fileInput.value = '';
+                fileInfo.textContent = '';
+                document.getElementById('uploadContent').style.display = 'block';
+                document.getElementById('fileContent').style.display = 'none';
+                processBtn.disabled = true;
+                dropZone.classList.remove('file-selected');
+                hideError();
+                
+                // 添加视觉反馈
+                dropZone.style.animation = 'pulse 0.5s';
+                setTimeout(() => {
+                    dropZone.style.animation = '';
+                }, 500);
+            }
+            
+            // 格式化文件大小
+            function formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+                else return (bytes / 1048576).toFixed(1) + ' MB';
+            }
+            
+            // 显示错误信息
+            function showError(message) {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+                errorMsg.style.animation = 'shake 0.5s';
+                selectedFile = null;
+                fileInfo.textContent = '';
+                processBtn.disabled = true;
+                
+                setTimeout(() => {
+                    errorMsg.style.animation = '';
+                }, 500);
+            }
+            
+            // 隐藏错误信息
+            function hideError() {
+                errorMsg.style.display = 'none';
+            }
+            
+            // 处理按钮点击
+            processBtn.addEventListener('click', function() {
+                if (!selectedFile) {
+                    showError('请先选择文件');
+                    return;
+                }
+                
+                // 显示进度，隐藏结果和错误
+                progress.style.display = 'block';
+                result.style.display = 'none';
+                hideError();
+                processBtn.disabled = true;
+                
+                // 创建FormData对象并发送请求
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                
+                // 模拟进度更新
+                const progressBar = document.getElementById('progressBar');
+                const progressText = document.getElementById('progressText');
+                let progressValue = 0;
+                
+                const progressInterval = setInterval(() => {
+                    if (progressValue < 90) {
+                        progressValue += Math.random() * 5;
+                        progressBar.style.width = progressValue + '%';
+                        progressText.textContent = Math.round(progressValue) + '%';
+                    }
+                }, 300);
+                                
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('网络响应不正常');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    clearInterval(progressInterval);
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '100%';
+                    
+                    setTimeout(() => {
+                        progress.style.display = 'none';
+                        
+                        // 检查后端返回的success字段
+                        if (data.success) {
+                            // 显示下载链接
+                            downloadLink.href = data.download_url;
+                            result.style.display = 'block';
+                        } else {
+                            showError(data.error || '处理文件时出错');
+                            processBtn.disabled = false;
+                        }
+                    }, 500);
+                })
+                .catch(error => {
+                    clearInterval(progressInterval);
+                    progress.style.display = 'none';
+                    showError('网络错误: ' + error.message);
+                    processBtn.disabled = false;
+                });
+            });
+            
+            /* // 添加CSS动画 (已移至<style>标签内)
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.02); }
+                    100% { transform: scale(1); }
+                }
+            `;
+            document.head.appendChild(style); */
+        });
+    </script>
+</body>
+</html>
+
+
+
